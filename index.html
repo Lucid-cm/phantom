@@ -1,0 +1,33 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#09090a"><title>PHANTOM</title>
+<link rel="stylesheet" href="src/tokens.css"><link rel="stylesheet" href="src/styles.css"></head>
+<body data-ambient="on" data-look="amber">
+<header><div id="status"><i></i><span id="moodw">calm</span></div><nav><button data-open="prog">progress</button><button data-open="set">settings</button></nav></header>
+<main>
+<div id="creature" role="button" tabindex="0" aria-label="PHANTOM. Tap to pet, double-tap for a trick, hold for the menu.">
+<svg id="phantom" viewBox="0 0 200 260" aria-hidden="true">
+<defs><clipPath id="ec"><circle cx="100" cy="128" r="30"/></clipPath></defs>
+<ellipse class="shadow" cx="100" cy="248" rx="44" ry="6"/>
+<g class="dust"><circle cx="28" cy="200" r="1.6" style="animation-delay:0s"/><circle cx="170" cy="180" r="1.2" style="animation-delay:2.5s"/><circle cx="52" cy="230" r="1.4" style="animation-delay:5s"/><circle cx="150" cy="225" r="1.8" style="animation-delay:7s"/><circle cx="108" cy="240" r="1.1" style="animation-delay:3.8s"/></g>
+<g class="float"><g class="tilt"><g class="bob">
+<g class="haloT"><g class="halo"><ellipse cx="100" cy="40" rx="34" ry="9"/></g></g>
+<path class="body" d="M40 140C40 84 68 58 100 58s60 26 60 82v56q0 18-12 12t-22 4q-14 12-26 0-14 12-26 0t-22-4-12-12z"/>
+<path class="hi" d="M54 118C56 90 72 74 92 70"/>
+<g class="eye"><circle class="iris" cx="100" cy="128" r="30"/><circle class="pupil" cx="100" cy="128" r="12"/><circle class="spark" cx="110" cy="118" r="5"/>
+<g clip-path="url(#ec)"><rect class="lid lt" x="68" y="96" width="64" height="64"/><rect class="lid lb" x="68" y="96" width="64" height="64"/></g></g>
+<path class="tear" d="M84 154q-4 8 0 11 4-3 0-11z"/><path class="tear t2" d="M116 154q-4 8 0 11 4-3 0-11z"/><path class="shut" d="M80 132q20 12 40 0"/>
+<text class="z" x="150" y="64">z</text><text class="z z2" x="160" y="48">z</text>
+</g></g></g></svg></div>
+<p id="msg" aria-live="polite"></p><div id="dot"></div><div id="menu" hidden></div>
+</main>
+<footer><div id="xp"><span id="lv"></span><div class="bar"><b id="fill"></b></div><span id="xpn"></span></div><button id="act">interact</button></footer>
+<section id="prog" class="sheet" hidden role="dialog" aria-label="Progress"><button class="x" data-close>close</button><div id="progbody"></div></section>
+<section id="set" class="sheet" hidden role="dialog" aria-label="Settings"><button class="x" data-close>close</button><h2>settings</h2>
+<button class="row" data-set="sound" aria-pressed="false">sound<em></em></button>
+<button class="row" data-set="reduceMotion" aria-pressed="false">reduced motion<em></em></button>
+<button class="row" data-set="ambient" aria-pressed="false">ambient dust<em></em></button>
+<h3>device</h3><dl id="dev"></dl>
+<p class="note">Browsers expose only some readings, and only on some devices. Anything marked unavailable is not guessed. Screen state, notifications and sensors need a native Android wrapper, which this version does not include.</p>
+<button class="row" id="reset">reset progress<em></em></button>
+<div id="confirm" hidden><p>Erase xp, level, unlocks and settings? This cannot be undone.</p><button id="yes">erase</button><button id="no">keep</button></div>
+</section>
+<script type="module" src="src/app.js"></script></body></html>

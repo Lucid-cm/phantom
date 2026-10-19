@@ -1,0 +1,6 @@
+:root{--bg:#09090a;--ink:#ece4d4;--dim:#8d8678;--line:#26241f;--rim:#3b3a40;--panel:#0f0f0e;
+--amber:#ffb02e;--amber-deep:#c97a12;--cream:#f2e4bf;--body:#26262b;
+--eye:#ffb02e;--r-sheet:22px;--r-pill:999px;--f:ui-rounded,"SF Pro Rounded",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+--t-fast:.18s;--t-mid:.5s}
+body[data-look=honey]{--eye:#ffd27a}body[data-look=ember]{--eye:#ff6a1f}body[data-look=moon]{--eye:#f2e4bf}
+:root{--tear:#a9c4d6}

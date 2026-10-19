@@ -1,0 +1,2 @@
+{"name":"phantom","version":"1.0.0","private":true,"type":"module",
+"scripts":{"dev":"node scripts/serve.mjs","start":"node scripts/serve.mjs","build":"echo \"static app: nothing to build\"","test":"node --test test/*.test.js"}}
