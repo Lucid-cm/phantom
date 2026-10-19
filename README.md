@@ -67,3 +67,6 @@ gh auth login                                   # GitHub.com > HTTPS > login wit
 gh repo create phantom --public --source=. --push
 ```
 Free hosting: repo Settings > Pages > Deploy from branch `main` / root. Add a LICENSE before going public.
+
+## v1.3 — installable PWA
+Adds `manifest.webmanifest`, icons, and `sw.js` (network-first, offline fallback). On the hosted https link, Chrome menu > **Install app**. On localhost, the service worker also caches the shell so it opens without the dev server after one visit (verify on your device).

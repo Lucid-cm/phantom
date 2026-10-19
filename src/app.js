@@ -105,3 +105,4 @@ sleeping=false;s.last=Date.now();act('wake',1200);mark(4000,'curious');
 say(first?'oh. hello.':away>36e5*2?`you were gone ${hrs} hours.`:h0>=5&&h0<11&&away>36e5*6?'morning.':h0>=23||h0<5?'it is late.':'hello again.');
 persist();refresh();
 if(!first){if(broke)setCry(true,'you missed a day. it waited.');else if(away>432e5)setCry(true,'you were gone a long time.')}
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
