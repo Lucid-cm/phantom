@@ -2,8 +2,8 @@
 export const KEY='phantom.v1';
 export const SOURCES={tap:{xp:2,cd:4000,cap:24},double:{xp:5,cd:15000,cap:25},pet:{xp:4,cd:20000,cap:32},play:{xp:5,cd:30000,cap:30},
  expr:{xp:3,cd:20000,cap:12},mote:{xp:3,cd:0,cap:15},stare:{xp:6,cd:0,cap:12},sling:{xp:4,cd:2000,cap:20},comfort:{xp:4,cd:60000,cap:12},bonus:{xp:10,cd:0,cap:10},rhythm:{xp:6,cd:0,cap:6},checkin:{xp:15,cd:0,cap:15},goodnight:{xp:10,cd:0,cap:10},company:{xp:8,cd:0,cap:24}};
-export const UNLOCKS=[{id:'amber',kind:'look',name:'Amber',lv:1},{id:'honey',kind:'look',name:'Honey',lv:2},{id:'squish',kind:'expr',name:'Squish',lv:3},
- {id:'ember',kind:'look',name:'Ember',lv:5},{id:'spin',kind:'expr',name:'Spin',lv:7},{id:'moon',kind:'look',name:'Moonlit',lv:9}];
+export const UNLOCKS=[{id:'amber',kind:'look',name:'Amber',lv:1},{id:'honey',kind:'look',name:'Honey',lv:2},{id:'squish',kind:'expr',name:'Squish',lv:3},{id:'dance',kind:'expr',name:'Dance',lv:3},
+ {id:'flip',kind:'expr',name:'Flip',lv:4},{id:'ember',kind:'look',name:'Ember',lv:5},{id:'derp',kind:'expr',name:'Derp',lv:5},{id:'spin',kind:'expr',name:'Spin',lv:7},{id:'glitch',kind:'expr',name:'Glitch',lv:8},{id:'moon',kind:'look',name:'Moonlit',lv:9}];
 export const MAX_LEVEL=10;
 export const need=L=>40*(L-1)**2; // total xp to reach level L
 export const levelOf=xp=>Math.min(MAX_LEVEL,Math.floor(Math.sqrt(Math.max(0,xp)/40))+1);

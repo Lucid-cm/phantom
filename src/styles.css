@@ -79,3 +79,21 @@ body[data-calm=on] [data-cry]:not([data-m=SLEEPING]) .tear{opacity:.8}
 @keyframes mt{0%{opacity:0}12%,88%{opacity:1}100%{opacity:0;transform:translate(14px,-26px)}}
 
 label.row{min-height:44px}.row input{background:none;border:0;color:var(--ink);font:inherit;text-align:right;width:55%;min-height:44px;outline:none}.row input:focus-visible{box-shadow:0 1px 0 var(--amber)}.row input::placeholder{color:var(--dim)}
+
+.mouth{fill:none;stroke:var(--amber-deep);stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round;opacity:0;transition:opacity .15s}.mouth.mo{fill:#1a1208}.mouth.mt{fill:#e0775b;stroke:none}
+[data-m=HAPPY] .m-smile,[data-m=EXCITED] .m-smile,[data-act=love] .m-smile,[data-act=derp] .m-smile,[data-act=derp] .mt{opacity:1}
+[data-cry]:not([data-m=SLEEPING]) .m-frown{opacity:1}[data-act=dizzy] .m-wavy,[data-act=shock] .m-open,[data-act=angry] .m-zig{opacity:1}
+.heart{fill:#e5533d;opacity:0;transform-box:fill-box;transform-origin:center}.spiral{fill:none;stroke:#1a1208;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;opacity:0;transform-box:view-box;transform-origin:100px 128px}.brow{fill:var(--body);opacity:0;transition:opacity .12s}
+[data-act=love] .heart{opacity:1;animation:hb .5s ease-in-out infinite alternate}[data-act=love] .pupil,[data-act=dizzy] .pupil{opacity:0}
+[data-act=dizzy] .spiral{opacity:1;animation:rot .7s linear infinite}[data-act=angry] .brow{opacity:1}
+[data-act=shock]{--es:1.3;--ps:.5;--lt:0;--lb:0}
+[data-act=dizzy] .bob{animation:dz .5s ease-in-out infinite alternate}[data-act=angry] .bob,[data-act=shock] .bob{animation:shk .08s linear infinite alternate}
+[data-act=dance] .bob{animation:dn .45s ease-in-out infinite alternate}[data-act=flip] .bob{animation:flip .9s cubic-bezier(.3,.7,.4,1)}
+[data-act=derp] .bob{animation:wob .8s ease-in-out 3}[data-act=derp] .pupil{animation:dp .35s ease-in-out infinite alternate}[data-act=glitch] .bob{animation:gl .22s steps(2) 4}
+@keyframes rot{to{transform:rotate(360deg)}}@keyframes hb{to{transform:scale(1.25)}}
+@keyframes dz{from{transform:rotate(-7deg) translateX(-4px)}to{transform:rotate(7deg) translateX(4px)}}@keyframes shk{from{transform:translateX(-4px)}to{transform:translateX(4px)}}
+@keyframes dn{from{transform:translateY(0) rotate(-9deg)}to{transform:translateY(-12px) rotate(9deg)}}
+@keyframes flip{0%{transform:none}45%{transform:translateY(-34px) rotate(-200deg) scale(.95)}90%{transform:rotate(-360deg) scale(1.08,.9)}100%{transform:rotate(-360deg)}}
+@keyframes wob{25%{transform:scale(1.15,.85)}50%{transform:scale(.9,1.12)}75%{transform:scale(1.05,.96)}}
+@keyframes dp{from{transform:translate(-5px,2px) scale(.6)}to{transform:translate(5px,-2px) scale(.6)}}
+@keyframes gl{0%{transform:translate(-5px,2px) skewX(12deg);opacity:.5}50%{transform:translate(5px,-2px) skewX(-12deg);opacity:1}100%{transform:none}}

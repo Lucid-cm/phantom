@@ -76,3 +76,6 @@ Progress sheet > **share card** renders a 1080×1350 PNG (creature in its curren
 
 ## v1.5 — rhythm memory
 PHANTOM logs the hour of your first open each day (local only, rolling 14 days, cleared by reset). After 3 days it knows your usual hour: arrive within ±1 h for +6 xp and a warm greeting (once a day); arrive late, early, or after skipped days and it comments. It only reacts while the app is open; it cannot notify you. The progress sheet shows what it has learned.
+
+## v1.6 — faces and movements
+New faces: dizzy spiral, heart eye (petting), angry brow (poking the eye 3x), shock (hard wall hit), derp tongue, plus a mouth that appears for expressions. New tricks unlock by level (dance L3, flip L4, derp L5, glitch L8) and cycle on double-tap. Tapping 6x fast makes it dizzy. Shaking the phone makes it dizzy where the browser exposes motion sensors (Chrome on Android, over https/localhost); otherwise nothing happens.

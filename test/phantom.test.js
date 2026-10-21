@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {logOpen,usualHour,openReaction,fmtHour,rhythmLine,cardInfo,cleanName,dailyTasks,progressTask,checkStreak,POOL,fresh,earn,levelOf,progress,deriveMood,load,save,KEY,SOURCES} from '../src/phantom.js';
+import {syncUnlocks,logOpen,usualHour,openReaction,fmtHour,rhythmLine,cardInfo,cleanName,dailyTasks,progressTask,checkStreak,POOL,fresh,earn,levelOf,progress,deriveMood,load,save,KEY,SOURCES} from '../src/phantom.js';
 const T=Date.UTC(2026,9,18,12,0,0);
 test('levels',()=>{assert.equal(levelOf(0),1);assert.equal(levelOf(39),1);assert.equal(levelOf(40),2);assert.equal(levelOf(160),3);assert.equal(levelOf(1e9),10);assert.equal(progress(40).pct,0)});
 test('rapid taps are throttled',()=>{const s=fresh(T);let g=0;for(let i=0;i<30;i++)g+=earn(s,"tap",T+i*100).gained;assert.equal(g,SOURCES.tap.xp)});
@@ -38,3 +38,5 @@ test('rhythm reactions: ontime, late, early, missed, same-day',()=>{const s=with
  assert.equal(openReaction(s,at(19,21,30)).kind,'ontime');assert.equal(openReaction(s,at(19,23,30)).kind,'late');assert.equal(openReaction(s,at(19,18,0)).kind,'early');
  assert.equal(openReaction(s,at(25,21,0)).kind,'missed');const t2=withLog([15,16,17,18,19],[21,21,21,21,21]);assert.equal(openReaction(t2,at(19,22,0)).kind,'same')});
 test('rhythm bonus xp is capped to once a day',()=>{const s=fresh(T);assert.equal(earn(s,'rhythm',T).gained,6);assert.equal(earn(s,'rhythm',T+1000).gained,0)});
+
+test('tricks unlock by level',()=>{const s=fresh(T);s.xp=360;syncUnlocks(s);for(const i of['squish','dance','flip'])assert.ok(s.unlocked.includes(i));assert.ok(!s.unlocked.includes('derp'));s.xp=640;syncUnlocks(s);assert.ok(s.unlocked.includes('derp'))});

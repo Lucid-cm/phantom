@@ -3,7 +3,7 @@ export function initPlay(c){
  const {cr,ph,stage}=c,cl=(v,a,b)=>Math.max(a,Math.min(b,v));
  let hits=[],x=0,y=0,vx=0,vy=0,hx=0,hy=0,drag=null,raf=0,last=0,tapAt=0,lp=0,st=0,b={x:0,t:0,b:0};
  function bounds(){const r=cr.getBoundingClientRect(),top=r.top-y;b={x:Math.max(0,(innerWidth-r.width)/2-6),t:-(top-70),b:Math.max(0,innerHeight-r.height-top-140)}}
- function hit(){if(Math.hypot(vx,vy)<350)return;const n=performance.now();hits=hits.filter(h=>n-h<4000);hits.push(n);if(hits.length>=3){hits=[];c.rough()}}
+ function hit(){if(Math.hypot(vx,vy)<350)return;c.act('shock',450);const n=performance.now();hits=hits.filter(h=>n-h<4000);hits.push(n);if(hits.length>=3){hits=[];c.rough()}}
  function loop(t){const dt=Math.min(.032,(t-last)/1000||.016);last=t;
   if(!drag){vx+=(-60*x-9*vx)*dt;vy+=(-60*y-9*vy)*dt;x+=vx*dt;y+=vy*dt;
    if(Math.abs(x)>b.x){x=Math.sign(x)*b.x;hit();vx*=-.7}if(y<b.t){y=b.t;hit();vy*=-.7}if(y>b.b){y=b.b;hit();vy*=-.7}}
@@ -23,7 +23,7 @@ export function initPlay(c){
   if(d.moved){if(Math.hypot(x,y)>80){c.gain('sling');c.task('sling');c.say(Math.hypot(vx,vy)>500?'wheeee!':'boing.',true);c.mark(6000,'excited');c.blip(560,.15)}kick();return}
   if(d.long||d.stared)return;
   if(d.eye&&performance.now()-d.t0>600){c.say('you looked away.');return}
-  const n=Date.now();if(n-tapAt<300){tapAt=0;c.dbl()}else{tapAt=n;c.tap(d.eye)}};
+  const n=Date.now();if(n-tapAt<300){tapAt=0;c.dbl(d.eye)}else{tapAt=n;c.tap(d.eye)}};
  cr.addEventListener('pointerup',end);cr.addEventListener('pointercancel',e=>{if(drag&&e.pointerId===drag.id){clearTimeout(lp);clearTimeout(st);drag=null;kick()}});
  cr.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();c.tap(false)}});
  addEventListener('pointermove',e=>{if(e.pointerType==='mouse'&&!drag)c.gaze(e)});

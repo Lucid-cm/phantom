@@ -7,7 +7,7 @@ const reduceOS=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const first=!localStorage.getItem(KEY);
 let s=load(localStorage,Date.now(),reduceOS);
 const away=Date.now()-s.last;
-const until={excited:0,curious:0,happy:0};let sleeping=false,mood='',actT,msgT,lpT,tapAt=0,ci=0,busy=false,cry=false,comfort=0;
+const until={excited:0,curious:0,happy:0};let sleeping=false,mood='',actT,msgT,lpT,tapAt=0,ci=0,busy=false,cry=false,comfort=0,taps=[],pokes=[],shakeAt=0,calmAt=0;
 const dev=createBrowserDevice();
 const persist=()=>save(localStorage,s);
 // ---- sound (off by default; synthesized, no assets)
@@ -21,7 +21,7 @@ const pick=a=>a[ci++%a.length];
 const hour=()=>new Date().getHours();
 function touch(){s.last=Date.now();if(sleeping){sleeping=false;act('wake',1000)}}
 function mark(ms,k){until[k]=Math.max(until[k],Date.now()+ms)}
-function gain(src){const r=earn(s,src);if(r.levelUp){mark(6000,'excited');act('hop',650);blip(780,.25);say(r.levelUp===3||r.levelUp===7?`level ${r.levelUp}. a new expression.`:`level ${r.levelUp}. something new.`,true)}
+function gain(src){const r=earn(s,src);if(r.levelUp){mark(6000,'excited');act('hop',650);blip(780,.25);say(trickMsg(r.levelUp),true)}
  persist();render();return r}
 // ---- mood
 function refresh(){const d=dev.read();const m=deriveMood({now:Date.now(),last:s.last,hour:d.hour,sleeping,until,lowBattery:d.batteryAvailable&&d.battery!=null&&d.battery<15&&!d.charging});
@@ -32,23 +32,29 @@ function refresh(){const d=dev.read();const m=deriveMood({now:Date.now(),last:s.
 function setCry(v,why){cry=v;comfort=0;if(v){ph.dataset.cry=1;ph.style.setProperty('--gx',0);ph.style.setProperty('--gy',4);say(why,true)}else delete ph.dataset.cry;refresh()}
 function soothe(n){if(!cry)return;comfort+=n;if(comfort>=3){cry=false;comfort=0;delete ph.dataset.cry;gain('comfort');mark(15000,'happy');say('okay. okay. thank you.',true)}else say('sniff.')}
 function scold(){touch();act('surprise',600);blip(220,.2);setCry(true,'...why would you say that.')}
+function trickMsg(L){const n=UNLOCKS.filter(u=>u.lv===L&&u.kind==='expr').map(u=>u.name.toLowerCase());return n.length?`level ${L}. new trick${n.length>1?'s':''}: ${n.join(', ')}.`:`level ${L}. something new.`}
+function pile(eye,n=1){const T=Date.now();if(T<calmAt)return true;taps=taps.filter(x=>T-x<2000);for(let i=0;i<n;i++)taps.push(T);if(eye){pokes=pokes.filter(x=>T-x<3000);for(let i=0;i<n;i++)pokes.push(T)}
+ if(eye&&pokes.length>=3){pokes=[];calmAt=T+1500;act('angry',1500);say('stop. the eye.',true);refresh();return true}
+ if(taps.length>=6){taps=[];calmAt=T+1700;act('dizzy',1700);say('too fast. dizzy.',true);refresh();return true}return false}
 function look(x,y){const c=v=>Math.max(-7,Math.min(7,v));ph.style.setProperty('--gx',c(x).toFixed(1));ph.style.setProperty('--gy',c(y).toFixed(1))}
 function task(id){const r=progressTask(s,id);if(!r)return;if(r.done&&!r.bonus)say('task done.',true);if(r.bonus){gain('bonus');say(`all three done. streak ${s.streak.n}.`,true)}persist();render()}
 function applyRhythm(rx){const m=rx&&{ontime:'right on time. i was waiting.',late:"you're late today. i waited.",early:'so early. i am still waking up.',missed:'you skipped some days. i kept your hour.'}[rx.kind];if(!m)return;
  if(rx.kind==='ontime'){gain('rhythm');mark(8000,'happy');act('hop',650);blip(700,.15)}say(m,true);refresh()}
 function stareWin(){gain('stare');task('stare');ph.classList.add('blink');setTimeout(()=>ph.classList.remove('blink'),160);act('hop',650);mark(6000,'happy');say('you win. i blinked first.',true);blip(620,.2)}
 // ---- interactions
-function tap(eye){const was=mood;touch();const r=gain('tap');const sur=was==='SLEEPING'||eye;act(sur?'surprise':'tap',was==='SLEEPING'?900:sur?450:380);
+function tap(eye){if(Date.now()<calmAt){touch();return}const was=mood;touch();const r=gain('tap');const sur=was==='SLEEPING'||eye;act(sur?'surprise':'tap',was==='SLEEPING'?900:sur?450:380);
  if(eye){ph.classList.add('blink');setTimeout(()=>ph.classList.remove('blink'),160)}blip(480);buzz();
  if(cry){soothe(1);refresh();return}
+ if(pile(eye))return;
  if(!r.gained&&r.why==='cooldown')say('slower. it tickles.');else if(r.gained)say(eye?'hey! that is my eye.':pick(['hm?','there.','oh!','yes?']));mark(2500,'happy');refresh()}
-function dbl(){touch();const r=gain('double');act(s.unlocked.includes('spin')?'spin':'hop',900);blip(660,.18);mark(6000,'excited');say(r.gained?'!!':'again? i am dizzy.');refresh()}
-function pet(){touch();const r=gain('pet');task('pet');soothe(3);mark(20000,'happy');act('tap',380);blip(420,.15);say(r.gained?'mmm.':'still warm from before.');refresh()}
+const EXPR={squish:[1000,'squish.'],dance:[3000,'watch this.'],flip:[900,'ta-da.'],derp:[2400,'bleh.'],spin:[900,'wheee.'],glitch:[900,'did you see that? neither did i.']};
+function dbl(eye){touch();const r=gain('double');if(pile(eye,2))return;const ex=s.unlocked.filter(i=>EXPR[i]),a=ex.length?ex[ci++%ex.length]:'hop';act(a,EXPR[a]?EXPR[a][0]:900);blip(660,.18);mark(6000,'excited');say(r.gained?'!!':'again? i am dizzy.');refresh()}
+function pet(){touch();const r=gain('pet');task('pet');soothe(3);mark(20000,'happy');act('love',1600);blip(420,.15);say(r.gained?'mmm.':'still warm from before.');refresh()}
 function play(){if(busy)return;touch();busy=true;const r=gain('play');mark(5000,'curious');const dot=$('#dot'),t0=performance.now();say('what is that?');
  (function f(t){const p=(t-t0)/2600;if(p>=1){dot.style.opacity=0;ph.style.setProperty('--gx',0);ph.style.setProperty('--gy',0);busy=false;return}
   const x=Math.sin(p*Math.PI*3)*90,y=-Math.abs(Math.cos(p*Math.PI*2))*40;dot.style.opacity=.8;dot.style.transform=`translate(${x}px,${y}px)`;
   ph.style.setProperty('--gx',x/14);ph.style.setProperty('--gy',y/14);requestAnimationFrame(f)})(t0)}
-function expr(id){touch();const r=gain('expr');act(id,1000);mark(8000,'happy');blip(700,.15);say(id==='spin'?'wheee.':'squish.');refresh()}
+function expr(id){touch();const r=gain('expr'),e=EXPR[id];act(id,e[0]);mark(8000,'happy');blip(700,.15);say(e[1]);refresh()}
 function toggleSleep(){if(sleeping||mood==='SLEEPING'){touch();say('mm. awake.')}else{sleeping=true;delete ph.dataset.act;say('goodnight.')}refresh()}
 function gaze(e){const r=$('#creature').getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height*.5;
  const dx=(e.clientX-cx)/r.width,dy=(e.clientY-cy)/r.height;const n=Math.hypot(dx,dy)||1,k=Math.min(1,n*2)*7/n;
@@ -100,6 +106,8 @@ function touch0(){/* device events are not user interactions: do not reset idle 
 // ---- time online -> company xp (foreground and recently touched only)
 setInterval(()=>{refresh();if(document.visibilityState==='visible'&&Date.now()-s.last<60000){s.active+=1;if(s.active%300===0){gain('company');say('you stayed a while.')}if(s.active%30===0)persist()}},1000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')persist()});
+addEventListener('devicemotion',e=>{const a=e.accelerationIncludingGravity;if(!a)return;const m=Math.hypot(a.x||0,a.y||0,a.z||0),n=Date.now();
+ if(m>28&&n-shakeAt>3000){shakeAt=n;touch();act('dizzy',1800);mark(4000,'excited');say('whoa. whoa. whoa.',true);refresh()}});
 // ---- boot
 initPlay({cr,ph,stage:$('main'),say,act,touch,mark,gain,task,tap,dbl,openMenu,rough:()=>{if(!cry)setCry(true,'too rough. that hurt.')},mood:()=>mood,look,gaze,stareWin,blip,calm:()=>body.dataset.calm==='on'});
 const broke=checkStreak(s);rollTasks(s);const rx0=openReaction(s),newDay=logOpen(s),rx=newDay&&!first?rx0:null;
