@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {dailyTasks,progressTask,checkStreak,POOL,fresh,earn,levelOf,progress,deriveMood,load,save,KEY,SOURCES} from '../src/phantom.js';
+import {cardInfo,cleanName,dailyTasks,progressTask,checkStreak,POOL,fresh,earn,levelOf,progress,deriveMood,load,save,KEY,SOURCES} from '../src/phantom.js';
 const T=Date.UTC(2026,9,18,12,0,0);
 test('levels',()=>{assert.equal(levelOf(0),1);assert.equal(levelOf(39),1);assert.equal(levelOf(40),2);assert.equal(levelOf(160),3);assert.equal(levelOf(1e9),10);assert.equal(progress(40).pct,0)});
 test('rapid taps are throttled',()=>{const s=fresh(T);let g=0;for(let i=0;i<30;i++)g+=earn(s,"tap",T+i*100).gained;assert.equal(g,SOURCES.tap.xp)});
@@ -23,3 +23,7 @@ test('bonus once per day; streak grows on consecutive days, resets after a gap',
  assert.equal(progressTask(s,s.tasks.ids[0],day(0)),null);assert.equal(finish(s,day(1)),true);assert.equal(s.streak.n,2);
  assert.equal(checkStreak(s,day(2)),false);assert.equal(checkStreak(s,day(4)),true);assert.equal(s.streak.n,0)});
 test('tasks outside today\'s set are ignored',()=>{const s=fresh(T);const other=POOL.find(p=>!dailyTasks('2026-10-18').includes(p.id)).id;assert.equal(progressTask(s,other,T),null)});
+
+test('card name is sanitised, trimmed, capped, defaulted',()=>{assert.equal(cleanName('  <b>Ghosty</b>\n '),'bGhosty/b');assert.equal(cleanName(''),'PHANTOM');assert.equal(cleanName('x'.repeat(40)).length,14);assert.equal(cleanName(null),'PHANTOM')});
+test('card info reflects level, streak, crying',()=>{const s=fresh(T);s.xp=200;s.streak={n:3,last:''};s.name='Mo';const i=cardInfo(s,'HAPPY',false);assert.deepEqual([i.name,i.level,i.streak,i.mood],['Mo',3,3,'HAPPY']);
+ assert.equal(cardInfo(s,'CALM',true).mood,'CRYING');assert.equal(cardInfo(s,'SLEEPING',true).mood,'SLEEPING')});

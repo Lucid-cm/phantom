@@ -70,3 +70,6 @@ Free hosting: repo Settings > Pages > Deploy from branch `main` / root. Add a LI
 
 ## v1.3 — installable PWA
 Adds `manifest.webmanifest`, icons, and `sw.js` (network-first, offline fallback). On the hosted https link, Chrome menu > **Install app**. On localhost, the service worker also caches the shell so it opens without the dev server after one visit (verify on your device).
+
+## v1.4 — share card
+Progress sheet > **share card** renders a 1080×1350 PNG (creature in its current mood and eye colour, name, level, streak, link) and opens the Android share sheet, or downloads it if sharing files isn't supported. Set the creature's name in Settings. Change the footer link in `src/share.js` (`LINK`).

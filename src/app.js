@@ -1,6 +1,7 @@
-import {POOL,rollTasks,progressTask,checkStreak,SOURCES,UNLOCKS,MAX_LEVEL,levelOf,progress,earn,deriveMood,load,save,fresh,syncUnlocks,dayKey,KEY} from './phantom.js';
+import {cardInfo,POOL,rollTasks,progressTask,checkStreak,SOURCES,UNLOCKS,MAX_LEVEL,levelOf,progress,earn,deriveMood,load,save,fresh,syncUnlocks,dayKey,KEY} from './phantom.js';
 import {createBrowserDevice} from './device.js';
 import {initPlay} from './play.js';
+import {shareCard} from './share.js';
 const $=s=>document.querySelector(s),ph=$('#phantom'),body=document.body,msg=$('#msg');
 const reduceOS=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const first=!localStorage.getItem(KEY);
@@ -71,18 +72,19 @@ function renderProg(){const p=progress(s.xp),d=dev.read(),el=$('#progbody'),done
  el.replaceChildren();const h=(t,tag='div',c='')=>{const e=document.createElement(tag);e.textContent=t;if(c)e.className=c;el.append(e);return e};
  h(`level ${p.L}`,'h2');h(String(p.L),'div','big');h(p.L>=MAX_LEVEL?'max level':`${p.left} xp to level ${p.L+1}`,'p','note');
  const row=(t,em,f,dis)=>{const b=document.createElement('button');b.className='row';b.disabled=!!dis;b.append(t);const e=document.createElement('em');e.textContent=em;b.append(e);if(f)b.onclick=f;el.append(b)};
- h(`today · streak ${s.streak.n} ${s.streak.n===1?'day':'days'}`,'h3');rollTasks(s);s.tasks.ids.forEach(id=>{const d=POOL.find(p=>p.id===id),n=s.tasks.prog[id]||0;row(d.t,n>=d.n?'done':`${n}/${d.n}`,null,true)});
+ row('share card','png for your post',()=>shareCard(cardInfo(s,mood,cry),x=>say(x,true)));h(`today · streak ${s.streak.n} ${s.streak.n===1?'day':'days'}`,'h3');rollTasks(s);s.tasks.ids.forEach(id=>{const d=POOL.find(p=>p.id===id),n=s.tasks.prog[id]||0;row(d.t,n>=d.n?'done':`${n}/${d.n}`,null,true)});
  h('rituals','h3');row('daily check-in',done('checkin')?'done today':'+15 xp',()=>{touch();gain('checkin');mark(8000,'happy');say('you came back.');refresh();renderProg()},done('checkin'));
  row('say goodnight',done('goodnight')?'done today':night?'+10 xp':'after 8pm',()=>{touch();gain('goodnight');mark(8000,'happy');say('goodnight.');refresh();renderProg()},done('goodnight')||!night);
  row('keep it company',`${Math.min(5,Math.floor((s.active%300))/60|0)}/5 min · +8 xp`,null,true);
  h('unlocks','h3');UNLOCKS.forEach(u=>{const own=s.unlocked.includes(u.id),on=u.kind==='look'&&s.look===u.id;
   row(`${u.name.toLowerCase()} ${u.kind==='look'?'eye':'expression'}`,!own?`level ${u.lv}`:u.kind==='expr'?'in menu':on?'wearing':'wear',u.kind==='look'&&own?()=>{s.look=u.id;body.dataset.look=u.id;persist();renderProg()}:null,!own||u.kind==='expr'||on)})}
-function renderSet(){document.querySelectorAll('[data-set]').forEach(b=>{const v=s.settings[b.dataset.set];b.setAttribute('aria-pressed',v);b.lastChild.textContent=v?'on':'off'});
+function renderSet(){$('#nm').value=s.name||'';document.querySelectorAll('[data-set]').forEach(b=>{const v=s.settings[b.dataset.set];b.setAttribute('aria-pressed',v);b.lastChild.textContent=v?'on':'off'});
  const d=dev.read(),dl=$('#dev');dl.replaceChildren();const r=(k,v)=>{const a=document.createElement('div'),t=document.createElement('dt'),e=document.createElement('dd');t.textContent=k;e.textContent=v;a.append(t,e);dl.append(a)};
  r('battery',d.batteryAvailable&&d.battery!=null?`${d.battery}%${d.charging?' · charging':''}`:'not available in this browser');
  r('connection',d.online?'online':'offline');r('local time',new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}))}
 document.querySelectorAll('[data-set]').forEach(b=>b.onclick=()=>{const k=b.dataset.set;s.settings[k]=!s.settings[k];persist();applySettings();renderSet();if(k==='sound'&&s.settings.sound)blip(520)});
 function applySettings(){body.dataset.ambient=s.settings.ambient?'on':'off';body.dataset.calm=(s.settings.reduceMotion||reduceOS)?'on':'off'}
+$('#nm').oninput=e=>{s.name=e.target.value.slice(0,14);persist()};
 $('#reset').onclick=()=>{$('#confirm').hidden=false;$('#yes').focus()};$('#no').onclick=()=>{$('#confirm').hidden=true};
 $('#yes').onclick=()=>{s=fresh(Date.now(),reduceOS);persist();body.dataset.look='amber';sleeping=false;$('#confirm').hidden=true;applySettings();render();renderSet();say('a clean start.');refresh()};
 // ---- render

@@ -11,7 +11,7 @@ export function progress(xp){const L=levelOf(xp);if(L>=MAX_LEVEL)return{L,pct:1,
  const lo=need(L),hi=need(L+1);return{L,pct:(xp-lo)/(hi-lo),into:xp-lo,span:hi-lo,left:hi-xp}}
 export const dayKey=t=>{const d=new Date(t);return`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`};
 export function fresh(now=Date.now(),reduce=false){return{v:1,xp:0,unlocked:['amber'],look:'amber',settings:{sound:false,reduceMotion:reduce,ambient:true},
- last:now,cool:{},day:{k:dayKey(now),by:{}},active:0,tasks:null,streak:{n:0,last:''}}}
+ last:now,cool:{},day:{k:dayKey(now),by:{}},active:0,tasks:null,streak:{n:0,last:''},name:''}}
 export function syncUnlocks(s){const L=levelOf(s.xp);for(const u of UNLOCKS)if(u.lv<=L&&!s.unlocked.includes(u.id))s.unlocked.push(u.id)}
 function rollDay(s,now){const k=dayKey(now);if(s.day.k!==k)s.day={k,by:{}}}
 export function earn(s,src,now=Date.now()){const d=SOURCES[src];if(!d)return{gained:0,why:'unknown'};rollDay(s,now);
@@ -42,3 +42,6 @@ export function progressTask(s,id,now=Date.now()){rollTasks(s,now);const t=s.tas
  if(all&&!t.bonus){t.bonus=true;bonus=true;const st=s.streak,today=dayKey(now);if(st.last!==today){st.n=st.last===yest(now)?st.n+1:1;st.last=today}}
  return{done,all,bonus}}
 export function checkStreak(s,now=Date.now()){const st=s.streak;if(st.n>0&&st.last!==dayKey(now)&&st.last!==yest(now)){st.n=0;return true}return false}
+// ---- share card data (pure, testable)
+export const cleanName=n=>String(n||'').replace(/[\u0000-\u001f\u007f<>]/g,'').trim().slice(0,14)||'PHANTOM';
+export const cardInfo=(s,mood,cry)=>({name:cleanName(s.name),level:levelOf(s.xp),streak:s.streak?s.streak.n:0,mood:cry&&mood!=='SLEEPING'?'CRYING':mood||'CALM',xp:s.xp});

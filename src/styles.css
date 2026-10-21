@@ -77,3 +77,5 @@ body[data-calm=on] .tilt,body[data-calm=on] .lid,body[data-calm=on] .eye{transit
 body[data-calm=on] [data-cry]:not([data-m=SLEEPING]) .tear{opacity:.8}
 .mote{position:absolute;width:44px;height:44px;padding:0;border-radius:50%;background:radial-gradient(circle,var(--cream) 0 4px,transparent 5px);animation:mt 4.5s ease-in-out both;z-index:2}
 @keyframes mt{0%{opacity:0}12%,88%{opacity:1}100%{opacity:0;transform:translate(14px,-26px)}}
+
+label.row{min-height:44px}.row input{background:none;border:0;color:var(--ink);font:inherit;text-align:right;width:55%;min-height:44px;outline:none}.row input:focus-visible{box-shadow:0 1px 0 var(--amber)}.row input::placeholder{color:var(--dim)}
