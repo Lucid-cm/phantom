@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {cardInfo,cleanName,dailyTasks,progressTask,checkStreak,POOL,fresh,earn,levelOf,progress,deriveMood,load,save,KEY,SOURCES} from '../src/phantom.js';
+import {logOpen,usualHour,openReaction,fmtHour,rhythmLine,cardInfo,cleanName,dailyTasks,progressTask,checkStreak,POOL,fresh,earn,levelOf,progress,deriveMood,load,save,KEY,SOURCES} from '../src/phantom.js';
 const T=Date.UTC(2026,9,18,12,0,0);
 test('levels',()=>{assert.equal(levelOf(0),1);assert.equal(levelOf(39),1);assert.equal(levelOf(40),2);assert.equal(levelOf(160),3);assert.equal(levelOf(1e9),10);assert.equal(progress(40).pct,0)});
 test('rapid taps are throttled',()=>{const s=fresh(T);let g=0;for(let i=0;i<30;i++)g+=earn(s,"tap",T+i*100).gained;assert.equal(g,SOURCES.tap.xp)});
@@ -27,3 +27,14 @@ test('tasks outside today\'s set are ignored',()=>{const s=fresh(T);const other=
 test('card name is sanitised, trimmed, capped, defaulted',()=>{assert.equal(cleanName('  <b>Ghosty</b>\n '),'bGhosty/b');assert.equal(cleanName(''),'PHANTOM');assert.equal(cleanName('x'.repeat(40)).length,14);assert.equal(cleanName(null),'PHANTOM')});
 test('card info reflects level, streak, crying',()=>{const s=fresh(T);s.xp=200;s.streak={n:3,last:''};s.name='Mo';const i=cardInfo(s,'HAPPY',false);assert.deepEqual([i.name,i.level,i.streak,i.mood],['Mo',3,3,'HAPPY']);
  assert.equal(cardInfo(s,'CALM',true).mood,'CRYING');assert.equal(cardInfo(s,'SLEEPING',true).mood,'SLEEPING')});
+
+const at=(d,h,m=0)=>new Date(2026,9,d,h,m).getTime();
+const withLog=(days,hs)=>{const s=fresh(at(14,12));s.rhythm.log=days.map((d,i)=>({k:`2026-10-${d}`,h:hs[i]}));return s};
+test('rhythm: learning until 3 days, one log per day, rolling 14',()=>{const s=fresh(at(1,9));assert.equal(usualHour(s).state,'learning');assert.equal(logOpen(s,at(1,9)),true);assert.equal(logOpen(s,at(1,18)),false);
+ for(let d=2;d<=20;d++)logOpen(s,at(d,9));assert.equal(s.rhythm.log.length,14);assert.match(rhythmLine(withLog([14,15],[21,21])),/learning/)});
+test('rhythm: finds usual hour, handles midnight wrap, rejects scatter',()=>{const a=usualHour(withLog([14,15,16,17],[21,21.5,20.5,21]));assert.equal(a.state,'known');assert.equal(fmtHour(a.hour),'9pm');
+ const w=usualHour(withLog([14,15,16,17],[23.5,0.5,23.8,0.2]));assert.equal(w.state,'known');assert.equal(fmtHour(w.hour),'12am');assert.equal(usualHour(withLog([14,15,16,17],[2,8,14,20])).state,'none')});
+test('rhythm reactions: ontime, late, early, missed, same-day',()=>{const s=withLog([14,15,16,17,18],[21,21,21,21,21]);
+ assert.equal(openReaction(s,at(19,21,30)).kind,'ontime');assert.equal(openReaction(s,at(19,23,30)).kind,'late');assert.equal(openReaction(s,at(19,18,0)).kind,'early');
+ assert.equal(openReaction(s,at(25,21,0)).kind,'missed');const t2=withLog([15,16,17,18,19],[21,21,21,21,21]);assert.equal(openReaction(t2,at(19,22,0)).kind,'same')});
+test('rhythm bonus xp is capped to once a day',()=>{const s=fresh(T);assert.equal(earn(s,'rhythm',T).gained,6);assert.equal(earn(s,'rhythm',T+1000).gained,0)});

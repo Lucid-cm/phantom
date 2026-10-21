@@ -73,3 +73,6 @@ Adds `manifest.webmanifest`, icons, and `sw.js` (network-first, offline fallback
 
 ## v1.4 — share card
 Progress sheet > **share card** renders a 1080×1350 PNG (creature in its current mood and eye colour, name, level, streak, link) and opens the Android share sheet, or downloads it if sharing files isn't supported. Set the creature's name in Settings. Change the footer link in `src/share.js` (`LINK`).
+
+## v1.5 — rhythm memory
+PHANTOM logs the hour of your first open each day (local only, rolling 14 days, cleared by reset). After 3 days it knows your usual hour: arrive within ±1 h for +6 xp and a warm greeting (once a day); arrive late, early, or after skipped days and it comments. It only reacts while the app is open; it cannot notify you. The progress sheet shows what it has learned.

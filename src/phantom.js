@@ -1,7 +1,7 @@
 // Pure logic: no DOM. Tested in test/.
 export const KEY='phantom.v1';
 export const SOURCES={tap:{xp:2,cd:4000,cap:24},double:{xp:5,cd:15000,cap:25},pet:{xp:4,cd:20000,cap:32},play:{xp:5,cd:30000,cap:30},
- expr:{xp:3,cd:20000,cap:12},mote:{xp:3,cd:0,cap:15},stare:{xp:6,cd:0,cap:12},sling:{xp:4,cd:2000,cap:20},comfort:{xp:4,cd:60000,cap:12},bonus:{xp:10,cd:0,cap:10},checkin:{xp:15,cd:0,cap:15},goodnight:{xp:10,cd:0,cap:10},company:{xp:8,cd:0,cap:24}};
+ expr:{xp:3,cd:20000,cap:12},mote:{xp:3,cd:0,cap:15},stare:{xp:6,cd:0,cap:12},sling:{xp:4,cd:2000,cap:20},comfort:{xp:4,cd:60000,cap:12},bonus:{xp:10,cd:0,cap:10},rhythm:{xp:6,cd:0,cap:6},checkin:{xp:15,cd:0,cap:15},goodnight:{xp:10,cd:0,cap:10},company:{xp:8,cd:0,cap:24}};
 export const UNLOCKS=[{id:'amber',kind:'look',name:'Amber',lv:1},{id:'honey',kind:'look',name:'Honey',lv:2},{id:'squish',kind:'expr',name:'Squish',lv:3},
  {id:'ember',kind:'look',name:'Ember',lv:5},{id:'spin',kind:'expr',name:'Spin',lv:7},{id:'moon',kind:'look',name:'Moonlit',lv:9}];
 export const MAX_LEVEL=10;
@@ -11,7 +11,7 @@ export function progress(xp){const L=levelOf(xp);if(L>=MAX_LEVEL)return{L,pct:1,
  const lo=need(L),hi=need(L+1);return{L,pct:(xp-lo)/(hi-lo),into:xp-lo,span:hi-lo,left:hi-xp}}
 export const dayKey=t=>{const d=new Date(t);return`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`};
 export function fresh(now=Date.now(),reduce=false){return{v:1,xp:0,unlocked:['amber'],look:'amber',settings:{sound:false,reduceMotion:reduce,ambient:true},
- last:now,cool:{},day:{k:dayKey(now),by:{}},active:0,tasks:null,streak:{n:0,last:''},name:''}}
+ last:now,cool:{},day:{k:dayKey(now),by:{}},active:0,tasks:null,streak:{n:0,last:''},name:'',rhythm:{log:[]}}}
 export function syncUnlocks(s){const L=levelOf(s.xp);for(const u of UNLOCKS)if(u.lv<=L&&!s.unlocked.includes(u.id))s.unlocked.push(u.id)}
 function rollDay(s,now){const k=dayKey(now);if(s.day.k!==k)s.day={k,by:{}}}
 export function earn(s,src,now=Date.now()){const d=SOURCES[src];if(!d)return{gained:0,why:'unknown'};rollDay(s,now);
@@ -27,7 +27,7 @@ export function deriveMood(c){const idle=c.now-c.last,k=(c.hour>=23||c.hour<6)?.
  if(idle>45000*k||c.lowBattery)return'SLEEPY';return'CALM'}
 export function load(store,now=Date.now(),reduce=false){const base=fresh(now,reduce);
  try{const r=JSON.parse(store.getItem(KEY)||'null');if(!r||r.v!==1)return base;
-  const s={...base,...r,settings:{...base.settings,...r.settings},day:r.day&&r.day.by?r.day:base.day,cool:r.cool||{},unlocked:Array.isArray(r.unlocked)?r.unlocked:base.unlocked,tasks:r.tasks&&r.tasks.ids?r.tasks:null,streak:r.streak&&typeof r.streak.n==='number'?r.streak:base.streak};
+  const s={...base,...r,settings:{...base.settings,...r.settings},day:r.day&&r.day.by?r.day:base.day,cool:r.cool||{},unlocked:Array.isArray(r.unlocked)?r.unlocked:base.unlocked,tasks:r.tasks&&r.tasks.ids?r.tasks:null,streak:r.streak&&typeof r.streak.n==='number'?r.streak:base.streak,rhythm:{log:(r.rhythm&&Array.isArray(r.rhythm.log)?r.rhythm.log:[]).filter(e=>e&&typeof e.k==='string'&&Number.isFinite(e.h)).slice(-14)}};
   s.xp=Math.max(0,+s.xp||0);syncUnlocks(s);if(!s.unlocked.includes(s.look))s.look="amber";return s}catch{return base}}
 export function save(store,s){try{store.setItem(KEY,JSON.stringify(s));return true}catch{return false}}
 // ---- daily micro tasks + streak (seeded by date: stable across reloads)
@@ -45,3 +45,17 @@ export function checkStreak(s,now=Date.now()){const st=s.streak;if(st.n>0&&st.la
 // ---- share card data (pure, testable)
 export const cleanName=n=>String(n||'').replace(/[\u0000-\u001f\u007f<>]/g,'').trim().slice(0,14)||'PHANTOM';
 export const cardInfo=(s,mood,cry)=>({name:cleanName(s.name),level:levelOf(s.xp),streak:s.streak?s.streak.n:0,mood:cry&&mood!=='SLEEPING'?'CRYING':mood||'CALM',xp:s.xp});
+// ---- rhythm memory: learns your usual hour from the first open of each day (local only, rolling 14 days)
+export function logOpen(s,now=Date.now()){const d=new Date(now),k=dayKey(now),h=d.getHours()+d.getMinutes()/60;
+ if(!s.rhythm||!Array.isArray(s.rhythm.log))s.rhythm={log:[]};const L=s.rhythm.log;if(L.length&&L[L.length-1].k===k)return false;
+ L.push({k,h:+h.toFixed(2)});if(L.length>14)L.splice(0,L.length-14);return true}
+export function usualHour(s){const L=(s.rhythm&&s.rhythm.log)||[];if(L.length<3)return{state:'learning',n:L.length};let x=0,y=0;
+ for(const e of L){const a=e.h/24*2*Math.PI;x+=Math.cos(a);y+=Math.sin(a)}
+ if(Math.hypot(x,y)/L.length<.75)return{state:'none',n:L.length};let m=Math.atan2(y,x)/(2*Math.PI)*24;if(m<0)m+=24;return{state:'known',hour:m,n:L.length}}
+export function fmtHour(h){const n=Math.round(h)%24;return`${n%12||12}${n<12?'am':'pm'}`}
+export function rhythmLine(s){const u=usualHour(s);return u.state==='learning'?`learning your rhythm · ${u.n}/3 days`:u.state==='none'?'no clear routine yet':`your usual hour · ${fmtHour(u.hour)}`}
+// Call BEFORE logOpen for today's first open. Returns what PHANTOM should feel about the arrival time.
+export function openReaction(s,now=Date.now()){const u=usualHour(s),L=s.rhythm.log,last=L[L.length-1];if(u.state!=='known')return{kind:u.state};
+ if(last&&last.k===dayKey(now))return{kind:'same'};if(last&&last.k!==yest(now))return{kind:'missed'};
+ const d=new Date(now),h=d.getHours()+d.getMinutes()/60,diff=(((h-u.hour+12)%24)+24)%24-12;
+ if(Math.abs(diff)<=1)return{kind:'ontime',diff};if(diff>1&&diff<=8)return{kind:'late',diff};if(diff<-1&&diff>=-8)return{kind:'early',diff};return{kind:'off',diff}}

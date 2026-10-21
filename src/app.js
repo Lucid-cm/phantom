@@ -1,4 +1,4 @@
-import {cardInfo,POOL,rollTasks,progressTask,checkStreak,SOURCES,UNLOCKS,MAX_LEVEL,levelOf,progress,earn,deriveMood,load,save,fresh,syncUnlocks,dayKey,KEY} from './phantom.js';
+import {logOpen,openReaction,rhythmLine,cardInfo,POOL,rollTasks,progressTask,checkStreak,SOURCES,UNLOCKS,MAX_LEVEL,levelOf,progress,earn,deriveMood,load,save,fresh,syncUnlocks,dayKey,KEY} from './phantom.js';
 import {createBrowserDevice} from './device.js';
 import {initPlay} from './play.js';
 import {shareCard} from './share.js';
@@ -34,6 +34,8 @@ function soothe(n){if(!cry)return;comfort+=n;if(comfort>=3){cry=false;comfort=0;
 function scold(){touch();act('surprise',600);blip(220,.2);setCry(true,'...why would you say that.')}
 function look(x,y){const c=v=>Math.max(-7,Math.min(7,v));ph.style.setProperty('--gx',c(x).toFixed(1));ph.style.setProperty('--gy',c(y).toFixed(1))}
 function task(id){const r=progressTask(s,id);if(!r)return;if(r.done&&!r.bonus)say('task done.',true);if(r.bonus){gain('bonus');say(`all three done. streak ${s.streak.n}.`,true)}persist();render()}
+function applyRhythm(rx){const m=rx&&{ontime:'right on time. i was waiting.',late:"you're late today. i waited.",early:'so early. i am still waking up.',missed:'you skipped some days. i kept your hour.'}[rx.kind];if(!m)return;
+ if(rx.kind==='ontime'){gain('rhythm');mark(8000,'happy');act('hop',650);blip(700,.15)}say(m,true);refresh()}
 function stareWin(){gain('stare');task('stare');ph.classList.add('blink');setTimeout(()=>ph.classList.remove('blink'),160);act('hop',650);mark(6000,'happy');say('you win. i blinked first.',true);blip(620,.2)}
 // ---- interactions
 function tap(eye){const was=mood;touch();const r=gain('tap');const sur=was==='SLEEPING'||eye;act(sur?'surprise':'tap',was==='SLEEPING'?900:sur?450:380);
@@ -70,7 +72,7 @@ document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>sheet(null));
 addEventListener('keydown',e=>{if(e.key==='Escape'){sheet(null);closeMenu()}});
 function renderProg(){const p=progress(s.xp),d=dev.read(),el=$('#progbody'),done=k=>(s.day.by[k]||0)>=SOURCES[k].cap,night=d.hour>=20||d.hour<5;
  el.replaceChildren();const h=(t,tag='div',c='')=>{const e=document.createElement(tag);e.textContent=t;if(c)e.className=c;el.append(e);return e};
- h(`level ${p.L}`,'h2');h(String(p.L),'div','big');h(p.L>=MAX_LEVEL?'max level':`${p.left} xp to level ${p.L+1}`,'p','note');
+ h(`level ${p.L}`,'h2');h(String(p.L),'div','big');h(p.L>=MAX_LEVEL?'max level':`${p.left} xp to level ${p.L+1}`,'p','note');h(rhythmLine(s),'p','note');
  const row=(t,em,f,dis)=>{const b=document.createElement('button');b.className='row';b.disabled=!!dis;b.append(t);const e=document.createElement('em');e.textContent=em;b.append(e);if(f)b.onclick=f;el.append(b)};
  row('share card','png for your post',()=>shareCard(cardInfo(s,mood,cry),x=>say(x,true)));h(`today · streak ${s.streak.n} ${s.streak.n===1?'day':'days'}`,'h3');rollTasks(s);s.tasks.ids.forEach(id=>{const d=POOL.find(p=>p.id===id),n=s.tasks.prog[id]||0;row(d.t,n>=d.n?'done':`${n}/${d.n}`,null,true)});
  h('rituals','h3');row('daily check-in',done('checkin')?'done today':'+15 xp',()=>{touch();gain('checkin');mark(8000,'happy');say('you came back.');refresh();renderProg()},done('checkin'));
@@ -100,11 +102,12 @@ setInterval(()=>{refresh();if(document.visibilityState==='visible'&&Date.now()-s
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')persist()});
 // ---- boot
 initPlay({cr,ph,stage:$('main'),say,act,touch,mark,gain,task,tap,dbl,openMenu,rough:()=>{if(!cry)setCry(true,'too rough. that hurt.')},mood:()=>mood,look,gaze,stareWin,blip,calm:()=>body.dataset.calm==='on'});
-const broke=checkStreak(s);rollTasks(s);
+const broke=checkStreak(s);rollTasks(s);const rx0=openReaction(s),newDay=logOpen(s),rx=newDay&&!first?rx0:null;
 applySettings();render();
 const h0=hour(),hrs=Math.round(away/36e5);
 sleeping=false;s.last=Date.now();act('wake',1200);mark(4000,'curious');
 say(first?'oh. hello.':away>36e5*2?`you were gone ${hrs} hours.`:h0>=5&&h0<11&&away>36e5*6?'morning.':h0>=23||h0<5?'it is late.':'hello again.');
 persist();refresh();
 if(!first){if(broke)setCry(true,'you missed a day. it waited.');else if(away>432e5)setCry(true,'you were gone a long time.')}
+if(!cry)applyRhythm(rx);
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
