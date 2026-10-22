@@ -1,5 +1,7 @@
 # PHANTOM — a little life inside your phone
 
+**🔗 Live demo:** [lucid-cm.github.io/phantom](https://lucid-cm.github.io/phantom/)
+
 Vanilla HTML/CSS/JS. No dependencies, no network requests, no accounts. Works offline.
 
 ## Run in Termux
