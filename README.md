@@ -1,3 +1,5 @@
+[![build: building](https://statusbadge.onrender.com/badge/ntCuzJm5Eu2NDbC7wpU2fg.svg)](https://github.com/Lucid-cm/phantom)
+
 # PHANTOM — a little life inside your phone
 
 **🔗 Live demo:** [lucid-cm.github.io/phantom](https://lucid-cm.github.io/phantom/)
